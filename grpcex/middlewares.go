@@ -247,7 +247,10 @@ func AccessLogMW(ctx context.Context, req interface{}, info *grpc.UnaryServerInf
 func RecoveryMW(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	defer func() {
 		if err := recover(); err != nil {
-			GetLogger(ctx).WithField("stack", string(debug.Stack())).Panic(err)
+			GetLogger(ctx).WithFields(logrus.Fields{
+				"stack": string(debug.Stack()),
+				"err":   err,
+			}).Error("Recover panic")
 		}
 	}()
 	return handler(ctx, req)
