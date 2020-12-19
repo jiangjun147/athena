@@ -27,6 +27,7 @@ const (
 const (
 	ErrRpcTimeout = 500900 + iota // Rpc调用超时
 	ErrRpcFailed                  // Rpc失败
+	ErrRpcPanic                   // Rpc panic
 )
 
 func From(err error) (code int, failed bool) {

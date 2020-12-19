@@ -64,7 +64,7 @@ func RedisSessionMW(redisConfKey string, sessionConfKey string) gin.HandlerFunc 
 		"tcp",
 		redisConf.GetString("address"),
 		redisConf.GetString("auth"),
-		strconv.FormatInt(redisConf.GetInt("db"), 10),
+		redisConf.GetString("db"),
 		sessionKey..., // Codec key
 	)
 	common.AssertError(err)

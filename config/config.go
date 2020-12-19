@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"reflect"
+	"strconv"
 	"sync"
 
 	"github.com/rickone/athena/common"
@@ -78,9 +78,17 @@ func (v *Value) GetValue(field interface{}) *Value {
 
 func (v *Value) GetInt(field interface{}) int64 {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
-		n := m[field]
-		if n != nil {
-			return reflect.ValueOf(n).Int()
+		f := m[field]
+		if f != nil {
+			switch n := f.(type) {
+			case int:
+				return int64(n)
+			case int64:
+				return n
+			case string:
+				i, _ := strconv.ParseInt(n, 10, 64)
+				return i
+			}
 		}
 	}
 	return 0
@@ -88,9 +96,16 @@ func (v *Value) GetInt(field interface{}) int64 {
 
 func (v *Value) GetString(field interface{}) string {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
-		s := m[field]
-		if s != nil {
-			return s.(string)
+		f := m[field]
+		if f != nil {
+			switch s := f.(type) {
+			case int:
+				return strconv.Itoa(s)
+			case int64:
+				return strconv.FormatInt(s, 10)
+			case string:
+				return s
+			}
 		}
 	}
 	return ""

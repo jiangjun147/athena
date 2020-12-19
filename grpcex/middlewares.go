@@ -2,6 +2,7 @@ package grpcex
 
 import (
 	"context"
+	"log"
 	"os"
 	"reflect"
 	"regexp"
@@ -244,13 +245,21 @@ func AccessLogMW(ctx context.Context, req interface{}, info *grpc.UnaryServerInf
 	return resp, err
 }
 
-func RecoveryMW(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func RecoveryMW(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	defer func() {
-		if err := recover(); err != nil {
+		if ret := recover(); ret != nil {
+			stack := string(debug.Stack())
 			GetLogger(ctx).WithFields(logrus.Fields{
-				"stack": string(debug.Stack()),
-				"err":   err,
+				"stack": stack,
+				"err":   ret,
 			}).Error("Recover panic")
+			log.Printf("panic: %v\n%s\n", ret, stack)
+
+			if retErr, ok := ret.(error); ok {
+				err = retErr
+			} else {
+				err = status.Errorf(errcode.ErrRpcPanic, "recover panic: %v", ret)
+			}
 		}
 	}()
 	return handler(ctx, req)

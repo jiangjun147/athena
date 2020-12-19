@@ -2,6 +2,7 @@ package ginex
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"runtime/debug"
 	"strconv"
@@ -101,8 +102,13 @@ func GetLogger(c *gin.Context) *logrus.Entry {
 func RecoveryMW() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
-			if err := recover(); err != nil {
-				GetLogger(c).WithField("stack", string(debug.Stack())).Panic(err)
+			if ret := recover(); ret != nil {
+				GetLogger(c).WithFields(logrus.Fields{
+					"stack": string(debug.Stack()),
+					"err":   ret,
+				}).Error("Recover panic")
+
+				c.AbortWithStatus(http.StatusServiceUnavailable)
 			}
 		}()
 		c.Next()
