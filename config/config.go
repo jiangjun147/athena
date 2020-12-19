@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"sync"
 
 	"github.com/rickone/athena/common"
@@ -79,7 +80,7 @@ func (v *Value) GetInt(field interface{}) int64 {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
 		n := m[field]
 		if n != nil {
-			return n.(int64)
+			return reflect.ValueOf(n).Int()
 		}
 	}
 	return 0
