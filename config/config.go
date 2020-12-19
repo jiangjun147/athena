@@ -77,14 +77,20 @@ func (v *Value) GetValue(field interface{}) *Value {
 
 func (v *Value) GetInt(field interface{}) int64 {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
-		return m[field].(int64)
+		n := m[field]
+		if n != nil {
+			return n.(int64)
+		}
 	}
 	return 0
 }
 
 func (v *Value) GetString(field interface{}) string {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
-		return m[field].(string)
+		s := m[field]
+		if s != nil {
+			return s.(string)
+		}
 	}
 	return ""
 }

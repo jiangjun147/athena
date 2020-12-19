@@ -24,7 +24,7 @@ func ReportInfluxDBV2(service string) {
 		return
 	}
 
-	influxdb := config.GetValue("service", "influxdb")
+	influxdb := config.GetValue("influxdb")
 	common.Assert(influxdb != nil, "config influxdb empty")
 
 	client = influxdb2.NewClient(fmt.Sprintf("http://%s", influxdb.GetString("address")), influxdb.GetString("token"))
