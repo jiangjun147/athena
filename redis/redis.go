@@ -17,7 +17,7 @@ type RedisClient struct {
 	*redigo.Pool
 }
 
-func NewRedisClient(addr, password, db string) *RedisClient {
+func NewRedisClient(addr, password string, db int64) *RedisClient {
 	return &RedisClient{
 		Pool: &redigo.Pool{
 			MaxIdle:     10,
@@ -40,7 +40,7 @@ func (cli *RedisClient) Do(cmd string, args ...interface{}) (interface{}, error)
 	return conn.Do(cmd, args...)
 }
 
-func dial(network, address, password, db string) (redigo.Conn, error) {
+func dial(network, address, password string, db int64) (redigo.Conn, error) {
 	c, err := redigo.Dial(network, address)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func dial(network, address, password, db string) (redigo.Conn, error) {
 			return nil, err
 		}
 	}
-	if db != "" {
+	if db != 0 {
 		if _, err := c.Do("SELECT", db); err != nil {
 			c.Close()
 			return nil, err
@@ -86,7 +86,7 @@ func initRedisCli(name string) *RedisClient {
 		return nil
 	}
 
-	cli = NewRedisClient(conf.GetString("address"), conf.GetString("auth"), conf.GetString("db"))
+	cli = NewRedisClient(conf.GetString("address"), conf.GetString("auth"), conf.GetInt("db"))
 	SetDB(name, cli)
 	return cli
 }
