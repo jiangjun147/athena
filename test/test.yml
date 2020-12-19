@@ -1,0 +1,48 @@
+service:
+  consul: 127.0.0.1:8500
+  graylog: 127.0.0.1:12201
+  test: :8801
+
+influxdb:
+  address: 192.168.199.125:8086
+  token: DmAtbc1XMcflfPaku_aIuezloCkhaM1ElBJE-s4lm8NzmZ8jwpFUsULhLCT5rrIexsRJC8SyqkbYI-5aZT0gqw==
+  bucket: test
+  org: Shunyou Tech.
+
+mysql:
+  read:
+    address: 192.168.199.125:3306
+    username: root
+    password: 12345
+    db: test
+  write:
+    address: 192.168.199.125:3306
+    username: root
+    password: 12345
+    db: test
+
+redis:
+  test:
+    address: 192.168.199.125:6379
+    auth:
+    db: 0
+
+image:
+    base_url: https://image-1302647140.cos.ap-guangzhou.myqcloud.com
+    secret_id: AKIDTltpY60SWMyLVsN07wZzBKMLZO1yuI2a
+    secret_key: Toz1C9qKnFTaT9ZwUqnXtEJAqGuRnslq
+    upload_max_size: 2097152
+
+eth:
+  api_url: ws://192.168.199.125:10001
+  contract: 0xf90632be96812ba75af036dc3ad391d783e5226a
+  decimals: 6
+  fee_limit: 100000 #gas limit
+  operate_user_id: 70792910068518912
+  collect_threshold: 10 #USD
+  collect_supply: 0.066 #Ether
+
+session:
+    session_key:
+        - 9#BO$cn*h89lHh96CtOnDA!^bMT4@To^
+    session_exp: 120
