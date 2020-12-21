@@ -8,6 +8,7 @@ require (
 	github.com/fbsobreira/gotron-sdk v0.0.0-20201030191254-389aec83c8f9
 	github.com/gin-contrib/sessions v0.0.3
 	github.com/gin-gonic/gin v1.6.3
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/websocket v1.4.1-0.20190629185528-ae1634f6a989

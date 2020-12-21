@@ -13,10 +13,11 @@ const (
 )
 
 const (
-	ErrRequestLimit = 403900 + iota // 请求太频繁
-	ErrMutexLock                    // 抢锁失败
-	ErrMutexUnlock                  // 释放锁失败
-	ErrBlocked                      // 系统己阻断
+	ErrRequestLimit  = 403900 + iota // 请求太频繁
+	ErrMutexLock                     // 抢锁失败
+	ErrMutexUnlock                   // 释放锁失败
+	ErrBlocked                       // 系统己阻断
+	ErrKeyDuplicated                 // 键冲突
 )
 
 const (
