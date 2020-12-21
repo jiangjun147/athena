@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 
@@ -12,6 +13,10 @@ import (
 )
 
 func Init(name string) {
+	if os.Getenv("DEBUG") != "" {
+		return
+	}
+
 	traceLogHook, err := NewFileRotateHook(fmt.Sprintf("%s/trace.log", name), logrus.WarnLevel, logrus.InfoLevel, logrus.DebugLevel, logrus.TraceLevel)
 	common.AssertError(err)
 	logrus.AddHook(traceLogHook)
