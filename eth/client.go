@@ -9,22 +9,25 @@ import (
 	"github.com/rickone/athena/config"
 )
 
+type EthClient struct {
+	*ethclient.Client
+}
+
 var (
-	client *rpc.Client
+	client *EthClient
 	once   = sync.Once{}
 )
 
-func RawClient() *rpc.Client {
+func Client() *EthClient {
 	once.Do(func() {
 		apiUrl := config.GetString("eth", "api_url")
 
-		var err error
-		client, err = rpc.Dial(apiUrl)
+		cli, err := rpc.Dial(apiUrl)
 		common.AssertError(err)
+
+		client = &EthClient{
+			Client: ethclient.NewClient(cli),
+		}
 	})
 	return client
-}
-
-func Client() *ethclient.Client {
-	return ethclient.NewClient(RawClient())
 }
