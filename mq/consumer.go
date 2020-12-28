@@ -18,9 +18,10 @@ type Consumer struct {
 }
 
 func NewConsumer(channel string) *Consumer {
-	conf := config.GetMapValue("Service", "nsqlookupd").(*config.ServiceConf)
+	address := config.GetString("service", "nsqlookupd")
+
 	return &Consumer{
-		address: conf.Address,
+		address: address,
 		channel: channel,
 	}
 }

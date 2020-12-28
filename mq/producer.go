@@ -18,10 +18,10 @@ var (
 
 func getProducer() *nsq.Producer {
 	producerOnce.Do(func() {
-		conf := config.GetMapValue("Service", "nsqd").(*config.ServiceConf)
+		address := config.GetString("service", "nsqd")
 
 		var err error
-		producerCli, err = nsq.NewProducer(conf.Address, nsq.NewConfig())
+		producerCli, err = nsq.NewProducer(address, nsq.NewConfig())
 		common.AssertError(err)
 	})
 	return producerCli
