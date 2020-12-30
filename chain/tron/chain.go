@@ -37,7 +37,7 @@ func (cli *TronClient) TokenTransfer(ctx context.Context, token *chain.Token, fr
 	}
 	fromAddress := address.PubkeyToAddress(key.PublicKey).String()
 
-	p := chain.NewParameter(2)
+	p := NewParameter(2)
 	p.Set(0, to.Bytes())
 	p.Set(1, amount.Bytes())
 
