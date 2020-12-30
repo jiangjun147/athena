@@ -11,6 +11,7 @@ import (
 
 type EthClient struct {
 	*ethclient.Client
+	raw *rpc.Client
 }
 
 var (
@@ -27,6 +28,7 @@ func Client() *EthClient {
 
 		client = &EthClient{
 			Client: ethclient.NewClient(cli),
+			raw:    cli,
 		}
 	})
 	return client

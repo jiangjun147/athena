@@ -1,4 +1,4 @@
-package tron
+package eth
 
 import (
 	"encoding/hex"
@@ -20,6 +20,19 @@ func NewFromHexParameter(hp []string) (Parameter, error) {
 		}
 	}
 	return p, nil
+}
+
+func NewFromHexInput(input string) (Parameter, error) {
+	if input[:2] == "0x" {
+		input = input[2:]
+	}
+
+	var hp []string
+	params := input[8:]
+	for i := 0; i < len(params); i += 64 {
+		hp = append(hp, params[i:i+64])
+	}
+	return NewFromHexParameter(hp)
 }
 
 func (p Parameter) Set(i int, param []byte) {
