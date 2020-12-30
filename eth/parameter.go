@@ -23,6 +23,10 @@ func NewFromHexParameter(hp []string) (Parameter, error) {
 }
 
 func NewFromHexInput(input string) (Parameter, error) {
+	if len(input) < 8 {
+		return nil, nil
+	}
+
 	if input[:2] == "0x" {
 		input = input[2:]
 	}

@@ -9,22 +9,27 @@ import (
 
 type Transaction struct {
 	rpcTransaction
-	To     common.Address
-	Amount *big.Int
+	param  Parameter
+	Fee    *big.Int
+	Status uint64
 }
 
 type rpcTransaction struct {
 	Hash        string         `json:"hash"`
 	BlockNumber *string        `json:"blockNumber,omitempty"`
 	From        common.Address `json:"from,omitempty"`
-	to          common.Address `json:"to,omitempty"`
-	value       string         `json:"value"`
-	input       string         `json:"input"`
+	To          common.Address `json:"to,omitempty"`
+	Value       string         `json:"value"`
+	Input       string         `json:"input"`
+	Gas         string         `json:"gas"`
+	GasPrice    string         `json:"gasPrice"`
 }
 
 func (cli *EthClient) GetTransaction(ctx context.Context, hash string) (*Transaction, error) {
+	txHash := common.HexToHash(hash)
+
 	var trx Transaction
-	err := cli.raw.CallContext(ctx, &trx, "eth_getTransactionByHash", common.HexToHash(hash))
+	err := cli.raw.CallContext(ctx, &trx, "eth_getTransactionByHash", txHash)
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +37,39 @@ func (cli *EthClient) GetTransaction(ctx context.Context, hash string) (*Transac
 		return nil, nil
 	}
 
-	p, err := NewFromHexInput(trx.input)
+	p, err := NewFromHexInput(trx.Input)
 	if err != nil {
 		return nil, err
 	}
+	trx.param = p
 
-	trx.To = common.BytesToAddress(p.Get(0))
-	trx.Amount = big.NewInt(0).SetBytes(p.Get(1))
+	if trx.BlockNumber != nil {
+		receipt, err := cli.TransactionReceipt(ctx, txHash)
+		if err != nil {
+			return nil, err
+		}
+
+		gasPrice := big.NewInt(0).SetBytes(common.FromHex(trx.GasPrice))
+		gasUsed := big.NewInt(int64(receipt.GasUsed))
+
+		trx.Fee = gasUsed.Mul(gasUsed, gasPrice)
+		trx.Status = receipt.Status
+	}
 	return &trx, nil
+}
+
+func (trx *Transaction) GetBlock() int64 {
+	if trx.BlockNumber == nil {
+		return 0
+	}
+
+	return big.NewInt(0).SetBytes(common.FromHex(*trx.BlockNumber)).Int64()
+}
+
+func (trx *Transaction) GetParamToAddress() common.Address {
+	return common.BytesToAddress(trx.param.Get(0))
+}
+
+func (trx *Transaction) GetParamValue() *big.Int {
+	return big.NewInt(0).SetBytes(trx.param.Get(1))
 }
