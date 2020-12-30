@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
+	"github.com/rickone/athena/chain/tron"
 	"github.com/rickone/athena/common"
 	"github.com/rickone/athena/config"
-	"github.com/rickone/athena/eth"
 	"github.com/rickone/athena/logger"
 )
 
@@ -15,10 +15,13 @@ func main() {
 	config.Init("test.yml")
 	logger.Init("test")
 
-	trx, err := eth.Client().GetTransaction(context.Background(), "0x4a010f8d0b70eed0b69aff7f817bfc56957774724107792cc6762fb03559d704")
+	trx, err := tron.Client().GetTransaction(context.Background(), "e4be5e35b692d0926520371951313a6b34da9571e258b90167a449ff540f5f21")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("hash: %s block: %d, from: %s, to: %s, data: %s, %v, fee: %v\n", trx.Hash, trx.GetBlock(), trx.From.Hex(), trx.To.Hex(), trx.GetParamToAddress().Hex(), trx.GetParamValue(), trx.Fee)
+	log.Printf("trx: %+v\n", trx)
+	if trx.Data != nil {
+		log.Printf("data: %+v\n", *trx.Data)
+	}
 }

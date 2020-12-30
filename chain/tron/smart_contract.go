@@ -3,8 +3,8 @@ package tron
 import (
 	"encoding/hex"
 
+	"github.com/rickone/athena/chain"
 	"github.com/rickone/athena/errcode"
-	"github.com/rickone/athena/eth"
 	"google.golang.org/grpc/status"
 )
 
@@ -12,7 +12,7 @@ const (
 	emptyAddress = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
 )
 
-func (cli *TronClient) TriggerSmartContract(ownerAddress string, contract string, selector string, parameter eth.Parameter, feeLimit uint64) (*Transaction, error) {
+func (cli *TronClient) TriggerSmartContract(ownerAddress string, contract string, selector string, parameter chain.Parameter, feeLimit uint64) (*Transaction, error) {
 	resp := struct {
 		Tx     Transaction `json:"transaction"`
 		Result Result      `json:"result"`
@@ -35,7 +35,7 @@ func (cli *TronClient) TriggerSmartContract(ownerAddress string, contract string
 	return &resp.Tx, err
 }
 
-func (cli *TronClient) TriggerConstantContract(contract string, selector string, parameter eth.Parameter) (eth.Parameter, error) {
+func (cli *TronClient) TriggerConstantContract(contract string, selector string, parameter chain.Parameter) (chain.Parameter, error) {
 	resp := struct {
 		ConstantResult []string `json:"constant_result"`
 		Result         Result   `json:"result"`
@@ -55,5 +55,5 @@ func (cli *TronClient) TriggerConstantContract(contract string, selector string,
 		return nil, status.Errorf(errcode.ErrChainFailed, "TriggerConstantContract err: code=%s msg=%s", resp.Result.Code, resp.Result.Message)
 	}
 
-	return eth.NewFromHexParameter(resp.ConstantResult)
+	return chain.NewFromHexParameter(resp.ConstantResult)
 }

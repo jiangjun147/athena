@@ -36,13 +36,26 @@ image:
 eth:
   #api_url: ws://192.168.199.125:10001
   api_url: ws://usdt.debugm.com:10001
-  #contract: 0xf90632be96812ba75af036dc3ad391d783e5226a
-  contract: 0xdac17f958d2ee523a2206206994597c13d831ec7
-  decimals: 6
-  fee_limit: 100000 #gas limit
-  operate_user_id: 70792910068518912
-  collect_threshold: 10 #USD
-  collect_supply: 0.066 #Ether
+  token:
+    2: #USDT
+      #contract: 0xf90632be96812ba75af036dc3ad391d783e5226a
+      contract: 0xdac17f958d2ee523a2206206994597c13d831ec7
+      decimals: 6
+      fee_limit: 100000 #gas limit
+      operate_user_id: 70792910068518912
+      collect_threshold: 10 #USD
+      collect_supply: 0.066 #Ether
+
+tron:
+  api_url: https://api.trongrid.io
+  token:
+    2: #USDT
+      contract: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+      decimals: 6
+      fee_limit: 10000000 #SUN=10TRX
+      operate_user_id: 70792910068518912
+      collect_threshold: 10 #USD
+      collect_supply: 10 #TRX
 
 session:
     session_key:

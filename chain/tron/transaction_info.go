@@ -2,21 +2,21 @@ package tron
 
 import (
 	"encoding/hex"
-
-	"github.com/shopspring/decimal"
+	"math/big"
 )
 
 type TransactionInfo struct {
-	Result         string          `json:"result"`
-	ResMessage     string          `json:"resMessage"`
-	BlockTimestamp uint64          `json:"blockTimeStamp"`
-	Fee            decimal.Decimal `json:"fee"`
+	Result         string   `json:"result"`
+	ResMessage     string   `json:"resMessage"`
+	BlockTimestamp uint64   `json:"blockTimeStamp"`
+	Fee            *big.Int `json:"fee"`
 }
 
 func (cli *TronClient) GetTransactionInfoById(id string) (*TransactionInfo, error) {
 	ti := TransactionInfo{}
 	err := cli.httpPost("/wallet/gettransactioninfobyid", map[string]interface{}{
-		"value": id,
+		"value":   id,
+		"visible": true,
 	}, &ti)
 	return &ti, err
 }
