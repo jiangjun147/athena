@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"sort"
 	"strings"
 
@@ -46,6 +47,30 @@ func GlcDecode(str string) (int64, error) {
 	}
 
 	return int64(binary.LittleEndian.Uint64(b)), nil
+}
+
+func EncodeAddress(id int64, chainId int32) string {
+	b := make([]byte, 20)
+	binary.LittleEndian.PutUint64(b, uint64(id))
+	binary.LittleEndian.PutUint64(b[8:], ^uint64(id))
+	binary.LittleEndian.PutUint32(b[16:], uint32(chainId))
+	return common.EncodeCheck(b)
+}
+
+func DecodeAddress(address string) (int64, int32, error) {
+	b, err := common.DecodeCheck(address)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	id := int64(binary.LittleEndian.Uint64(b))
+	idr := binary.LittleEndian.Uint64(b[8:])
+	if ^uint64(id) != idr {
+		return 0, 0, errors.New("address invalid")
+	}
+
+	chainId := int32(binary.LittleEndian.Uint32(b[16:]))
+	return id, chainId, nil
 }
 
 func GetOpenId(userId int64, appId string) (string, error) {
