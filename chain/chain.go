@@ -12,7 +12,7 @@ type Key struct {
 
 type Token struct {
 	Address  string
-	Decimals int64
+	Decimals int32
 }
 
 type Data struct {
