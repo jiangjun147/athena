@@ -3,7 +3,6 @@ module github.com/rickone/athena
 go 1.15
 
 require (
-	code.51shunyou.com/shunyou/bingo v0.0.0-20201219014509-7d715174fa71
 	github.com/alicebob/miniredis/v2 v2.14.1
 	github.com/ethereum/go-ethereum v1.9.21
 	github.com/fbsobreira/gotron-sdk v0.0.0-20201030191254-389aec83c8f9
