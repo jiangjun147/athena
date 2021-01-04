@@ -30,6 +30,17 @@ func Sha1Sign(strs ...string) string {
 	return Sha1Hash(strings.Join(strs, ""))
 }
 
+func Sha256Hash(str string) string {
+	h := sha256.New()
+	h.Write([]byte(str))
+	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+func Sha256Sign(strs ...string) string {
+	sort.Strings(strs)
+	return Sha256Hash(strings.Join(strs, ""))
+}
+
 func GetEntityType(id int64) int32 {
 	return int32((id >> 12) & mark4)
 }
