@@ -27,11 +27,8 @@ func getProducer() *nsq.Producer {
 	return producerCli
 }
 
-func Publish(topic string, value interface{}) {
-	data, err := json.Marshal(value)
-	common.AssertError(err)
-
-	err = getProducer().Publish(topic, data)
+func Publish(topic string, body []byte) {
+	err := getProducer().Publish(topic, body)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"topic": topic,
@@ -40,11 +37,8 @@ func Publish(topic string, value interface{}) {
 	}
 }
 
-func DeferredPublish(topic string, delay time.Duration, value interface{}) {
-	data, err := json.Marshal(value)
-	common.AssertError(err)
-
-	err = getProducer().DeferredPublish(topic, delay, data)
+func DeferredPublish(topic string, delay time.Duration, body []byte) {
+	err := getProducer().DeferredPublish(topic, delay, body)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"topic": topic,
@@ -52,4 +46,18 @@ func DeferredPublish(topic string, delay time.Duration, value interface{}) {
 			"err":   err.Error(),
 		}).Error("DeferredPublish failed")
 	}
+}
+
+func PublishJSON(topic string, value interface{}) {
+	data, err := json.Marshal(value)
+	common.AssertError(err)
+
+	Publish(topic, data)
+}
+
+func DeferredPublishJSON(topic string, delay time.Duration, value interface{}) {
+	data, err := json.Marshal(value)
+	common.AssertError(err)
+
+	DeferredPublish(topic, delay, data)
 }
