@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/nsqio/go-nsq"
 	"github.com/rickone/athena/common"
 	"github.com/rickone/athena/config"
@@ -57,6 +58,20 @@ func PublishJSON(topic string, value interface{}) {
 
 func DeferredPublishJSON(topic string, delay time.Duration, value interface{}) {
 	data, err := json.Marshal(value)
+	common.AssertError(err)
+
+	DeferredPublish(topic, delay, data)
+}
+
+func PublishProto(topic string, value proto.Message) {
+	data, err := proto.Marshal(value)
+	common.AssertError(err)
+
+	Publish(topic, data)
+}
+
+func DeferredPublishProto(topic string, delay time.Duration, value proto.Message) {
+	data, err := proto.Marshal(value)
 	common.AssertError(err)
 
 	DeferredPublish(topic, delay, data)
