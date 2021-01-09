@@ -8,29 +8,16 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"sync"
-
-	"github.com/rickone/athena/config"
 )
 
 type TronClient struct {
 	apiUrl string
 }
 
-var (
-	client *TronClient
-	once   = sync.Once{}
-)
-
-func Client() *TronClient {
-	once.Do(func() {
-		apiUrl := config.GetString("tron", "api_url")
-
-		client = &TronClient{
-			apiUrl: apiUrl,
-		}
-	})
-	return client
+func Client(apiUrl string) *TronClient {
+	return &TronClient{
+		apiUrl: apiUrl,
+	}
 }
 
 func (cli *TronClient) httpPost(path string, in interface{}, out interface{}) error {

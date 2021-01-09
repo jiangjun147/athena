@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/rickone/athena/common"
-	"github.com/rickone/athena/config"
 )
 
 type EthClient struct {
@@ -15,21 +14,42 @@ type EthClient struct {
 }
 
 var (
-	client *EthClient
-	once   = sync.Once{}
+	clients map[string]*EthClient
+	mu      = sync.RWMutex{}
 )
 
-func Client() *EthClient {
-	once.Do(func() {
-		apiUrl := config.GetString("eth", "api_url")
+func initEthClient(apiUrl string) *EthClient {
+	mu.Lock()
+	defer mu.Unlock()
 
-		cli, err := rpc.Dial(apiUrl)
-		common.AssertError(err)
+	cli, ok := clients[apiUrl]
+	if ok {
+		return cli
+	}
 
-		client = &EthClient{
-			Client: ethclient.NewClient(cli),
-			raw:    cli,
-		}
-	})
-	return client
+	conn, err := rpc.Dial(apiUrl)
+	common.AssertError(err)
+
+	cli = &EthClient{
+		Client: ethclient.NewClient(conn),
+		raw:    conn,
+	}
+
+	clients[apiUrl] = cli
+	return cli
+}
+
+func getEthClient(apiUrl string) *EthClient {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return clients[apiUrl]
+}
+
+func Client(apiUrl string) *EthClient {
+	cli := getEthClient(apiUrl)
+	if cli != nil {
+		return cli
+	}
+	return initEthClient(apiUrl)
 }
