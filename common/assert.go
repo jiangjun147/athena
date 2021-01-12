@@ -22,7 +22,6 @@ func AssertT(t *testing.T, condition bool) {
 
 func AssertErrorT(t *testing.T, err error) {
 	if err != nil {
-		t.Error(err)
-		t.FailNow()
+		t.Fatal(err)
 	}
 }
