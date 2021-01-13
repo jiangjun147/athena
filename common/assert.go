@@ -25,6 +25,13 @@ func AssertEqualT(t *testing.T, x, y interface{}) {
 	}
 }
 
+func AssertNotEqualT(t *testing.T, x, y interface{}) {
+	if reflect.DeepEqual(x, y) {
+		_, file, line, _ := runtime.Caller(1)
+		t.Fatalf("\n%s:%d: %+v equal to %+v", file, line, x, y)
+	}
+}
+
 func AssertErrorT(t *testing.T, err error) {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
