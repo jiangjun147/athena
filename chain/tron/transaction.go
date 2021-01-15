@@ -124,6 +124,11 @@ func (cli *TronClient) CreateTransaction(ownerAddress string, toAddress string, 
 		"amount":        amount,
 		"visible":       true,
 	}, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(tx.RawData, &tx.RawDataDesc)
 	return &tx, err
 }
 
@@ -146,6 +151,11 @@ func (cli *TronClient) GetTransactionById(id string) (*Transaction, error) {
 		"value":   id,
 		"visible": true,
 	}, &tx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(tx.RawData, &tx.RawDataDesc)
 	return &tx, err
 }
 
