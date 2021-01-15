@@ -65,15 +65,21 @@ func GetValue(fields ...interface{}) *Value {
 	return &Value{val: v}
 }
 
-func (v *Value) GetValue(field interface{}) *Value {
-	if m, ok := v.val.(map[interface{}]interface{}); ok {
-		res := m[field]
-		if res == nil {
-			return nil
+func (v *Value) GetValue(fields ...interface{}) *Value {
+	var sv interface{} = v.val
+	for _, field := range fields {
+		switch val := sv.(type) {
+		case map[interface{}]interface{}:
+			sv = val[field]
+		case []interface{}:
+			sv = val[field.(int)]
 		}
-		return &Value{val: res}
 	}
-	return nil
+
+	if sv == nil {
+		return nil
+	}
+	return &Value{val: sv}
 }
 
 func (v *Value) GetInt(field interface{}) int64 {
