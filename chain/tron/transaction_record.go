@@ -2,18 +2,17 @@ package tron
 
 import (
 	"fmt"
-	"math/big"
 	"net/url"
 	"strconv"
 )
 
 type TransactionRecord struct {
-	TxId           string   `json:"transaction_id"`
-	From           string   `json:"from"`
-	To             string   `json:"to"`
-	Type           string   `json:"type"`
-	Value          *big.Int `json:"value"`
-	BlockTimestamp uint64   `json:"block_timestamp"`
+	TxId           string `json:"transaction_id"`
+	From           string `json:"from"`
+	To             string `json:"to"`
+	Type           string `json:"type"`
+	Value          string `json:"value"`
+	BlockTimestamp uint64 `json:"block_timestamp"`
 }
 
 func (cli *TronClient) GetTrc20TransactionRecord(contract string, from, to string, maxBlockTimestamp int64, trxType string) ([]*TransactionRecord, error) {
