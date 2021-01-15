@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -15,17 +16,18 @@ import (
 )
 
 type Transaction struct {
-	Id         string   `json:"txID"`
-	Visible    bool     `json:"visible"`
-	RawData    RawData  `json:"raw_data"`
-	RawDataHex string   `json:"raw_data_hex"`
-	Signature  []string `json:"signature"`
-	Ret        []struct {
+	Id          string          `json:"txID"`
+	Visible     bool            `json:"visible"`
+	RawData     json.RawMessage `json:"raw_data"`
+	RawDataDesc RawDataDesc     `json:"-"`
+	RawDataHex  string          `json:"raw_data_hex"`
+	Signature   []string        `json:"signature"`
+	Ret         []struct {
 		ContractRet string `json:"contractRet"`
 	} `json:"ret"`
 }
 
-type RawData struct {
+type RawDataDesc struct {
 	Contract []*struct {
 		Parameter struct {
 			Value struct {
@@ -76,14 +78,14 @@ func (tx *Transaction) GetRetMessage() string {
 }
 
 func (tx *Transaction) GetFrom() string {
-	for _, p := range tx.RawData.Contract {
+	for _, p := range tx.RawDataDesc.Contract {
 		return p.Parameter.Value.OwnerAddress
 	}
 	return ""
 }
 
 func (tx *Transaction) GetTo() string {
-	for _, p := range tx.RawData.Contract {
+	for _, p := range tx.RawDataDesc.Contract {
 		switch p.Type {
 		case "TransferContract":
 			return p.Parameter.Value.ToAddress
@@ -95,7 +97,7 @@ func (tx *Transaction) GetTo() string {
 }
 
 func (tx *Transaction) GetValue() *big.Int {
-	for _, p := range tx.RawData.Contract {
+	for _, p := range tx.RawDataDesc.Contract {
 		switch p.Type {
 		case "TransferContract":
 			return p.Parameter.Value.Amount
@@ -105,7 +107,7 @@ func (tx *Transaction) GetValue() *big.Int {
 }
 
 func (tx *Transaction) GetData() *chain.Data {
-	for _, p := range tx.RawData.Contract {
+	for _, p := range tx.RawDataDesc.Contract {
 		switch p.Type {
 		case "TriggerSmartContract":
 			return getData(common.FromHex(p.Parameter.Value.Data))
