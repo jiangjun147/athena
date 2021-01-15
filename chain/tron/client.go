@@ -11,12 +11,14 @@ import (
 )
 
 type TronClient struct {
-	apiUrl string
+	apiUrl   string
+	feeLimit uint64
 }
 
-func Client(apiUrl string) *TronClient {
+func Client(apiUrl string, feeLimit uint64) *TronClient {
 	return &TronClient{
-		apiUrl: apiUrl,
+		apiUrl:   apiUrl,
+		feeLimit: feeLimit,
 	}
 }
 

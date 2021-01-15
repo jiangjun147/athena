@@ -10,7 +10,8 @@ import (
 
 type EthClient struct {
 	*ethclient.Client
-	raw *rpc.Client
+	raw      *rpc.Client
+	gasLimit uint64
 }
 
 var (
@@ -18,7 +19,7 @@ var (
 	mu      = sync.RWMutex{}
 )
 
-func initEthClient(apiUrl string) *EthClient {
+func initEthClient(apiUrl string, gasLimit uint64) *EthClient {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -31,8 +32,9 @@ func initEthClient(apiUrl string) *EthClient {
 	common.AssertError(err)
 
 	cli = &EthClient{
-		Client: ethclient.NewClient(conn),
-		raw:    conn,
+		Client:   ethclient.NewClient(conn),
+		raw:      conn,
+		gasLimit: gasLimit,
 	}
 
 	clients[apiUrl] = cli
@@ -46,10 +48,10 @@ func getEthClient(apiUrl string) *EthClient {
 	return clients[apiUrl]
 }
 
-func Client(apiUrl string) *EthClient {
+func Client(apiUrl string, gasLimit uint64) *EthClient {
 	cli := getEthClient(apiUrl)
 	if cli != nil {
 		return cli
 	}
-	return initEthClient(apiUrl)
+	return initEthClient(apiUrl, gasLimit)
 }

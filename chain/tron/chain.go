@@ -41,9 +41,7 @@ func (cli *TronClient) TokenTransfer(ctx context.Context, token *chain.Token, fr
 	p.Set(0, to.Bytes())
 	p.Set(1, amount.Bytes())
 
-	// TODO fee_limit
-
-	tx, err := cli.TriggerSmartContract(fromAddress, token.Address, "transfer(address,uint256)", p, 10000)
+	tx, err := cli.TriggerSmartContract(fromAddress, token.Address, "transfer(address,uint256)", p, cli.feeLimit)
 	if err != nil {
 		return nil, err
 	}

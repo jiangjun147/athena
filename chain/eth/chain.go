@@ -53,8 +53,15 @@ func (cli *EthClient) TokenTransfer(ctx context.Context, token *chain.Token, fro
 		return nil, err
 	}
 
+	gasPrice, err := cli.SuggestGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	option := bind.NewKeyedTransactor(key)
-	// TODO: gasPrice and gasLimit from cli
+	option.GasPrice = gasPrice
+	option.GasLimit = cli.gasLimit
+
 	tx, err := usdt.Transfer(option, common.HexToAddress(toAddress), amount)
 	if err != nil {
 		return nil, err
