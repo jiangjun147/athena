@@ -26,7 +26,7 @@ func NewConsumer(channel string) *Consumer {
 	}
 }
 
-func (c *Consumer) On(topic string, f func(ctx context.Context, m *nsq.Message) error) {
+func (c *Consumer) OnWithTimeout(topic string, f func(ctx context.Context, m *nsq.Message) error, timeout time.Duration) {
 	consumer, err := nsq.NewConsumer(topic, c.channel, nsq.NewConfig())
 	common.AssertError(err)
 
@@ -41,7 +41,7 @@ func (c *Consumer) On(topic string, f func(ctx context.Context, m *nsq.Message) 
 			}
 		}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
 		err = f(ctx, m)
@@ -52,6 +52,10 @@ func (c *Consumer) On(topic string, f func(ctx context.Context, m *nsq.Message) 
 	common.AssertError(err)
 
 	c.clients = append(c.clients, consumer)
+}
+
+func (c *Consumer) On(topic string, f func(ctx context.Context, m *nsq.Message) error) {
+	c.OnWithTimeout(topic, f, 8*time.Second)
 }
 
 func (c *Consumer) Stop() {
