@@ -27,7 +27,7 @@ func NewGinService(name string) *GinService {
 	service := &GinService{}
 	service.Engine = gin.New()
 
-	address := config.GetString("service", fmt.Sprintf("%s.gin", name))
+	address := config.GetString("service", name)
 
 	ip4, port, err := common.AddressToIp4Port(address)
 	if err != nil {
