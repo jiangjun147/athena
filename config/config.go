@@ -100,6 +100,28 @@ func (v *Value) GetInt(field interface{}) int64 {
 	return 0
 }
 
+func (v *Value) GetFloat(field interface{}) float64 {
+	if m, ok := v.val.(map[interface{}]interface{}); ok {
+		f := m[field]
+		if f != nil {
+			switch n := f.(type) {
+			case int:
+				return float64(n)
+			case int64:
+				return float64(n)
+			case float32:
+				return float64(n)
+			case float64:
+				return n
+			case string:
+				ft, _ := strconv.ParseFloat(n, 64)
+				return ft
+			}
+		}
+	}
+	return 0
+}
+
 func (v *Value) GetString(field interface{}) string {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
 		f := m[field]
@@ -136,7 +158,39 @@ func GetInt(fields ...interface{}) int64 {
 	if v == nil {
 		return 0
 	}
-	return v.val.(int64)
+
+	switch n := v.val.(type) {
+	case int:
+		return int64(n)
+	case int64:
+		return n
+	case string:
+		i, _ := strconv.ParseInt(n, 10, 64)
+		return i
+	}
+	return 0
+}
+
+func GetFloat(fields ...interface{}) float64 {
+	v := GetValue(fields...)
+	if v == nil {
+		return 0
+	}
+
+	switch n := v.val.(type) {
+	case int:
+		return float64(n)
+	case int64:
+		return float64(n)
+	case float32:
+		return float64(n)
+	case float64:
+		return n
+	case string:
+		ft, _ := strconv.ParseFloat(n, 64)
+		return ft
+	}
+	return 0
 }
 
 func GetString(fields ...interface{}) string {
