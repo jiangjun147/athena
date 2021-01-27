@@ -122,6 +122,26 @@ func (v *Value) GetFloat(field interface{}) float64 {
 	return 0
 }
 
+func (v *Value) GetBool(field interface{}) bool {
+	if m, ok := v.val.(map[interface{}]interface{}); ok {
+		f := m[field]
+		if f != nil {
+			switch n := f.(type) {
+			case int:
+				return n != 0
+			case int64:
+				return n != 0
+			case bool:
+				return n
+			case string:
+				b, _ := strconv.ParseBool(n)
+				return b
+			}
+		}
+	}
+	return false
+}
+
 func (v *Value) GetString(field interface{}) string {
 	if m, ok := v.val.(map[interface{}]interface{}); ok {
 		f := m[field]
@@ -191,6 +211,26 @@ func GetFloat(fields ...interface{}) float64 {
 		return ft
 	}
 	return 0
+}
+
+func GetBool(fields ...interface{}) bool {
+	v := GetValue(fields...)
+	if v == nil {
+		return false
+	}
+
+	switch n := v.val.(type) {
+	case int:
+		return n != 0
+	case int64:
+		return n != 0
+	case bool:
+		return n
+	case string:
+		b, _ := strconv.ParseBool(n)
+		return b
+	}
+	return false
 }
 
 func GetString(fields ...interface{}) string {
