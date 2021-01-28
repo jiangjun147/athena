@@ -2,11 +2,13 @@ package ginex
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/rickone/athena/common"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -23,45 +25,80 @@ var (
 	}
 )
 
-func WebSocket(f func(ctx context.Context, c *gin.Context, conn *websocket.Conn) error) gin.HandlerFunc {
+type WSMessage struct {
+	Type int
+	Data []byte
+}
+
+func JSONWSMessage(val interface{}) *WSMessage {
+	data, err := json.Marshal(val)
+	common.AssertError(err)
+
+	return &WSMessage{
+		Type: websocket.TextMessage,
+		Data: data,
+	}
+}
+
+func WebSocket(f func(ctx context.Context, c *gin.Context, out chan *WSMessage) error) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		defer conn.Close()
+
+		out := make(chan *WSMessage)
+		defer close(out)
 
 		conn.SetReadLimit(readLimit)
 		conn.SetReadDeadline(time.Now().Add(healthCheckInterval))
 		conn.SetPingHandler(func(data string) error {
-			err := conn.WriteMessage(websocket.PongMessage, nil)
-			if err != nil {
-				return err
+			out <- &WSMessage{
+				Type: websocket.PongMessage,
 			}
-			return conn.SetReadDeadline(time.Now().Add(healthCheckInterval))
+			return nil
 		})
 
 		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
 
 		go func() {
-			if err := f(ctx, c, conn); err != nil {
-				if s, ok := status.FromError(err); !ok || s.Code() != codes.Canceled {
-					GetLogger(c).Error(err)
+			for {
+				select {
+				case msg := <-out:
+					err := conn.WriteMessage(msg.Type, msg.Data)
+					if err != nil {
+						if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+							GetLogger(c).Errorf("ws.WriteMessage err: %v", err)
+						}
+						return
+					}
+				case <-ctx.Done():
+					return
 				}
 			}
-			conn.Close()
 		}()
 
-		for {
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					GetLogger(c).Errorf("ReadMessage err: %v", err)
+		go func() {
+			for {
+				_, _, err := conn.ReadMessage()
+				if err != nil {
+					if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+						GetLogger(c).Errorf("ws.ReadMessage err: %v", err)
+					}
+					break
 				}
-				break
+				conn.SetReadDeadline(time.Now().Add(healthCheckInterval))
 			}
-			conn.SetReadDeadline(time.Now().Add(healthCheckInterval))
+			cancel()
+		}()
+
+		err = f(ctx, c, out)
+		if err != nil {
+			if s, ok := status.FromError(err); !ok || s.Code() != codes.Canceled {
+				GetLogger(c).Errorf("ws.Handler err: %v", err)
+			}
 		}
 	}
 }
