@@ -54,7 +54,7 @@ func NewWebSocket(c *gin.Context) (*WebSocket, error) {
 		write <- &WSMessage{
 			Type: websocket.PongMessage,
 		}
-		return nil
+		return conn.SetReadDeadline(time.Now().Add(healthCheckInterval))
 	})
 
 	ctx, cancel := context.WithCancel(context.Background())
