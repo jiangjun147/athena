@@ -3,7 +3,6 @@ package ginex
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -66,15 +65,12 @@ func NewWebSocket(c *gin.Context) (*WebSocket, error) {
 		cancel: cancel,
 	}
 
-	go ws.doRead()
-	go ws.doWrite()
+	go ws.loopRead()
+	go ws.loopWrite()
 	return ws, nil
 }
 
-func (ws *WebSocket) doRead() {
-	log.Println("doRead begin")
-	defer log.Println("doRead end")
-
+func (ws *WebSocket) loopRead() {
 	for {
 		msgType, data, err := ws.conn.ReadMessage()
 		if err != nil {
@@ -95,10 +91,7 @@ func (ws *WebSocket) doRead() {
 	ws.Cancel()
 }
 
-func (ws *WebSocket) doWrite() {
-	log.Println("doWrite begin")
-	defer log.Println("doWrite end")
-
+func (ws *WebSocket) loopWrite() {
 	for {
 		select {
 		case msg := <-ws.write:
