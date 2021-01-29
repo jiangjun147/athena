@@ -30,14 +30,11 @@ func SignCheck(url string, key string, payload map[string]interface{}) error {
 		return errors.New("sign expired")
 	}
 
-	sign := ""
-	strs := []string{url, key}
-	for k, v := range payload {
-		if k == "sign" {
-			sign = v.(string)
-			continue
-		}
+	sign := payload["sign"].(string)
+	delete(payload, "sign")
 
+	strs := []string{url, key}
+	for _, v := range payload {
 		strs = append(strs, fmt.Sprintf("%v", v))
 	}
 
