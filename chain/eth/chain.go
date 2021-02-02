@@ -8,6 +8,7 @@ import (
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/rickone/athena/chain"
 )
@@ -29,6 +30,58 @@ func (cli *EthClient) CreateKey() (*chain.Key, error) {
 		Address:    address,
 		PrivateKey: privateKey,
 	}, nil
+}
+
+func (cli *EthClient) BalanceOf(ctx context.Context, address string) (*big.Int, error) {
+	return cli.BalanceAt(ctx, common.HexToAddress(address), nil)
+}
+
+func (cli *EthClient) Transfer(ctx context.Context, fromPrivKey string, toAddress string, amount *big.Int) (*chain.Transaction, error) {
+	privateKey, err := crypto.HexToECDSA(fromPrivKey)
+	if err != nil {
+		return nil, err
+	}
+
+	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	nonce, err := cli.PendingNonceAt(ctx, fromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	gasPrice, err := cli.SuggestGasPrice(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	tx := types.NewTransaction(nonce, common.HexToAddress(toAddress), amount, cli.gasLimit, gasPrice, nil)
+
+	networkId, err := cli.NetworkID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(networkId), privateKey)
+	if err != nil {
+		return nil, err
+	}
+
+	err = cli.SendTransaction(ctx, signedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.GetTransaction(ctx, signedTx.Hash().Hex())
+}
+
+func (cli *EthClient) TokenBalanceOf(ctx context.Context, token *chain.Token, address string) (*big.Int, error) {
+	usdt, err := NewUSDT(common.HexToAddress(token.Address), cli)
+	if err != nil {
+		return nil, err
+	}
+
+	return usdt.BalanceOf(&bind.CallOpts{
+		Context: ctx,
+	}, common.HexToAddress(address))
 }
 
 type rpcTransaction struct {

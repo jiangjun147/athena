@@ -33,6 +33,9 @@ type Transaction struct {
 
 type Client interface {
 	CreateKey() (*Key, error)
+	BalanceOf(ctx context.Context, address string) (*big.Int, error)
+	Transfer(ctx context.Context, fromPrivKey string, toAddress string, amount *big.Int) (*Transaction, error)
+	TokenBalanceOf(ctx context.Context, token *Token, address string) (*big.Int, error)
 	TokenTransfer(ctx context.Context, token *Token, fromPrivKey string, toAddress string, amount *big.Int) (*Transaction, error)
 	GetTransaction(ctx context.Context, hash string) (*Transaction, error)
 	FindTokenTransaction(ctx context.Context, token *Token, toAddress string, block int64) ([]*Transaction, error)
