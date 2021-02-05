@@ -23,6 +23,7 @@ require (
 	github.com/shopspring/decimal v1.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.15
+	go.mongodb.org/mongo-driver v1.4.6
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	google.golang.org/grpc v1.31.1
 	gopkg.in/yaml.v2 v2.4.0
