@@ -18,7 +18,7 @@ import (
 )
 
 func getFullMethod(c *gin.Context) string {
-	return fmt.Sprintf("%s%s", c.Request.Method, c.FullPath())
+	return fmt.Sprintf("%s%s", c.Request.Method, c.Request.URL.Path)
 }
 
 func BlockerMW() gin.HandlerFunc {
