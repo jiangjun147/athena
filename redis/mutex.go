@@ -6,7 +6,6 @@ import (
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/google/uuid"
 	"github.com/rickone/athena/errcode"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/status"
 )
 
@@ -104,20 +103,19 @@ func (m *Mutex) Unlock() error {
 	return nil
 }
 
-func MutexWrap(key string, f func() (interface{}, error)) (interface{}, error) {
+func MutexWrap(key string, f func() (interface{}, error)) (reply interface{}, err error) {
 	m := NewMutex(key)
 	defer m.Close()
 
-	if err := m.Lock(); err != nil {
-		return nil, err
+	err = m.Lock()
+	if err != nil {
+		return
 	}
+
 	defer func() {
-		err := m.Unlock()
-		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"key": key,
-				"err": err.Error(),
-			}).Error("Mutex unlock failed")
+		mErr := m.Unlock()
+		if err == nil && mErr != nil {
+			err = mErr
 		}
 	}()
 
