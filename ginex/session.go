@@ -1,7 +1,6 @@
 package ginex
 
 import (
-	"context"
 	"encoding/gob"
 	"log"
 	"net/http"
@@ -76,7 +75,7 @@ func RedisSessionMW(redisConfKey string, sessionConfKey string) gin.HandlerFunc 
 	return sessions.Sessions("session", store)
 }
 
-func AuthorizeMW(authHandler func(ctx context.Context, accessToken string) (*AuthInfo, error)) gin.HandlerFunc {
+func AuthorizeMW(authHandler func(c *gin.Context, accessToken string) (*AuthInfo, error)) gin.HandlerFunc {
 	log.Println("Use Authorize Middleware")
 
 	return Wrap(func(c *gin.Context) (interface{}, error) {
