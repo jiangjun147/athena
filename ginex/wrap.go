@@ -39,11 +39,11 @@ func Wrap(f func(*gin.Context) (interface{}, error)) gin.HandlerFunc {
 			switch c.Request.Method {
 			case "POST":
 				c.JSON(http.StatusCreated, obj)
-			case "GET", "PUT":
-				//c.SecureJSON(http.StatusOK, obj)
-				c.JSON(http.StatusOK, getResultIfExists(obj))
 			case "DELETE":
 				c.Status(http.StatusNoContent)
+			default:
+				//c.SecureJSON(http.StatusOK, obj)
+				c.JSON(http.StatusOK, getResultIfExists(obj))
 			}
 		}
 	}
