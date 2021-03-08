@@ -84,6 +84,32 @@ func DecodeAddress(address string) (int64, int32, error) {
 	return id, chainId, nil
 }
 
+func EncodeAddressV2(spaceId int32, id int64, chainId int32) string {
+	b := make([]byte, 24)
+	binary.LittleEndian.PutUint64(b, uint64(id))
+	binary.LittleEndian.PutUint64(b[8:16], ^uint64(id))
+	binary.LittleEndian.PutUint32(b[16:20], uint32(spaceId))
+	binary.LittleEndian.PutUint32(b[20:], uint32(chainId))
+	return common.EncodeCheck(b)
+}
+
+func DecodeAddressV2(address string) (int32, int64, int32, error) {
+	b, err := common.DecodeCheck(address)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	id := int64(binary.LittleEndian.Uint64(b))
+	idr := binary.LittleEndian.Uint64(b[8:16])
+	if ^uint64(id) != idr {
+		return 0, 0, 0, errors.New("address invalid")
+	}
+
+	spaceId := int32(binary.LittleEndian.Uint32(b[16:20]))
+	chainId := int32(binary.LittleEndian.Uint32(b[20:]))
+	return spaceId, id, chainId, nil
+}
+
 func GetOpenId(userId int64, appId string) (string, error) {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, uint64(userId))
