@@ -15,7 +15,7 @@ type EthClient struct {
 }
 
 var (
-	clients map[string]*EthClient
+	clients = map[string]*EthClient{}
 	mu      = sync.RWMutex{}
 )
 
