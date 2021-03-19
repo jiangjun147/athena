@@ -31,6 +31,10 @@ func (cli *TronClient) BalanceOf(ctx context.Context, b58Address string) (*big.I
 		return nil, err
 	}
 
+	if acc.Balance == nil {
+		return big.NewInt(0), nil
+	}
+
 	return acc.Balance, nil
 }
 
