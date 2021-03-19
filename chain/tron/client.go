@@ -8,12 +8,19 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type TronClient struct {
 	apiUrl   string
 	feeLimit uint64
 }
+
+var (
+	httpClient = &http.Client{
+		Timeout: 5 * time.Second,
+	}
+)
 
 func Client(apiUrl string, feeLimit uint64) *TronClient {
 	return &TronClient{
@@ -30,7 +37,7 @@ func (cli *TronClient) httpPost(path string, in interface{}, out interface{}) er
 		return err
 	}
 
-	r, err := http.Post(url, "application/json", bytes.NewReader(req))
+	r, err := httpClient.Post(url, "application/json", bytes.NewReader(req))
 	if err != nil {
 		return err
 	}
@@ -49,7 +56,7 @@ func (cli *TronClient) httpGet(path string, in *url.Values, out interface{}) err
 	url := cli.apiUrl + path
 	req := in.Encode()
 
-	r, err := http.Get(fmt.Sprintf("%s?%s", url, req))
+	r, err := httpClient.Get(fmt.Sprintf("%s?%s", url, req))
 	if err != nil {
 		return err
 	}
