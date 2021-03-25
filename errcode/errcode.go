@@ -24,6 +24,7 @@ const (
 const (
 	ErrRecordNotFound = 404900 + iota // MySQL记录不存在
 	ErrValueNotFound                  // Redis值不存在
+	ErrConfigNotFound                 // 配置不存在
 )
 
 const (

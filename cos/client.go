@@ -7,7 +7,9 @@ import (
 
 	"github.com/rickone/athena/common"
 	"github.com/rickone/athena/config"
+	"github.com/rickone/athena/errcode"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -57,10 +59,16 @@ func Bucket(name string) *cos.Client {
 	return initCosClient(name)
 }
 
-func BucketWithCredential(name string, tmpSecretId string, tmpSecretKey string, sessionToken string) *cos.Client {
+func BucketWithCredential(name string, tmpSecretId string, tmpSecretKey string, sessionToken string) (*cos.Client, error) {
 	conf := config.GetValue("cos", name)
+	if conf == nil {
+		return nil, status.Error(errcode.ErrConfigNotFound, "config not found")
+	}
+
 	u, err := url.Parse(conf.GetString("base_url"))
-	common.AssertError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	b := &cos.BaseURL{
 		BucketURL: u,
@@ -71,5 +79,5 @@ func BucketWithCredential(name string, tmpSecretId string, tmpSecretKey string, 
 			SecretKey:    tmpSecretKey,
 			SessionToken: sessionToken,
 		},
-	})
+	}), nil
 }
