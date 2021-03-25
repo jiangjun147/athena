@@ -5,9 +5,7 @@ import (
 	"time"
 
 	"github.com/rickone/athena/config"
-	"github.com/rickone/athena/errcode"
 	sts "github.com/tencentyun/qcloud-cos-sts-sdk/go"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -22,9 +20,6 @@ var (
 
 func CreateCredential(name string) (*sts.CredentialResult, error) {
 	conf := config.GetValue("cos", name)
-	if conf == nil {
-		return nil, status.Error(errcode.ErrConfigNotFound, "config not found")
-	}
 
 	cli := sts.NewClient(conf.GetString("secret_id"), conf.GetString("secret_key"), httpClient)
 	opt := &sts.CredentialOptions{
