@@ -56,3 +56,20 @@ func Bucket(name string) *cos.Client {
 	}
 	return initCosClient(name)
 }
+
+func BucketWithCredential(name string, tmpSecretId string, tmpSecretKey string, sessionToken string) *cos.Client {
+	conf := config.GetValue("cos", name)
+	u, err := url.Parse(conf.GetString("base_url"))
+	common.AssertError(err)
+
+	b := &cos.BaseURL{
+		BucketURL: u,
+	}
+	return cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:     tmpSecretId,
+			SecretKey:    tmpSecretKey,
+			SessionToken: sessionToken,
+		},
+	})
+}
