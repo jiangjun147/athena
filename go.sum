@@ -732,6 +732,8 @@ github.com/tencentcloud/tencentcloud-sdk-go v3.0.83+incompatible/go.mod h1:0PfYo
 github.com/tencentyun/cos-go-sdk-v5 v0.7.8/go.mod h1:wQBO5HdAkLjj2q6XQiIfDSP8DXDNrppDRw2Kp/1BODA=
 github.com/tencentyun/cos-go-sdk-v5 v0.7.15 h1:+uKDylojhKkGhBzb8B7J/nIoEl6afGYiJubkVWEctxA=
 github.com/tencentyun/cos-go-sdk-v5 v0.7.15/go.mod h1:wQBO5HdAkLjj2q6XQiIfDSP8DXDNrppDRw2Kp/1BODA=
+github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20210325043845-84a0811633ca h1:G/aIr3WiUesWHL2YGYgEqjM5tCAJ43Ml+0C18wDkWWs=
+github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20210325043845-84a0811633ca/go.mod h1:b18KQa4IxHbxeseW1GcZox53d7J0z39VNONTxvvlkXw=
 github.com/tent/http-link-go v0.0.0-20130702225549-ac974c61c2f9/go.mod h1:RHkNRtSLfOK7qBTHaeSX1D6BNpI3qw7NTxsmNr4RvN8=
 github.com/tidwall/btree v0.0.0-20170113224114-9876f1454cf0/go.mod h1:huei1BkDWJ3/sLXmO+bsCNELL+Bp2Kks9OLyQFkzvA8=
 github.com/tidwall/btree v0.0.0-20191029221954-400434d76274/go.mod h1:huei1BkDWJ3/sLXmO+bsCNELL+Bp2Kks9OLyQFkzvA8=
