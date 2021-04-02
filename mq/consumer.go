@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nsqio/go-nsq"
 	"github.com/rickone/athena/common"
 	"github.com/rickone/athena/config"
+	"github.com/rickone/athena/grpcex"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,6 +45,9 @@ func (c *Consumer) OnWithTimeout(topic string, f func(ctx context.Context, m *ns
 
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
+
+		reqId := uuid.New().String()
+		ctx = grpcex.NewCtxWithValue(ctx, c.channel, "", "", reqId, "", "", topic)
 
 		err = f(ctx, m)
 		return

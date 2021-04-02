@@ -55,7 +55,7 @@ func CtxUnaryClientMW() grpc.UnaryClientInterceptor {
 				kvs = append(kvs, "user_id", userId)
 			}
 
-			ctx = NewCtxWithValue(ctx, reqId, "", service, c.FullPath(), clientIp, userId)
+			ctx = NewCtxWithValue(ctx, service, c.FullPath(), "", reqId, clientIp, userId, "")
 		} else {
 			reqId := GetCtxValue(ctx, "request_id")
 			if reqId != nil {
@@ -71,6 +71,11 @@ func CtxUnaryClientMW() grpc.UnaryClientInterceptor {
 			if userId != nil {
 				kvs = append(kvs, "user_id", userId.(string))
 			}
+
+			topic := GetCtxValue(ctx, "topic")
+			if topic != nil {
+				kvs = append(kvs, "topic", topic.(string))
+			}
 		}
 
 		ctx = metadata.AppendToOutgoingContext(ctx, kvs...)
@@ -84,16 +89,16 @@ func CtxUnaryServerMW(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		return handler(ctx, req)
 	}
 
-	reqId := ""
-	vals := md.Get("request_id")
-	if len(vals) > 0 {
-		reqId = vals[0]
-	}
-
 	caller := ""
-	vals = md.Get("caller")
+	vals := md.Get("caller")
 	if len(vals) > 0 {
 		caller = vals[0]
+	}
+
+	reqId := ""
+	vals = md.Get("request_id")
+	if len(vals) > 0 {
+		reqId = vals[0]
 	}
 
 	clientIp := ""
@@ -108,27 +113,39 @@ func CtxUnaryServerMW(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		userId = vals[0]
 	}
 
+	topic := ""
+	vals = md.Get("topic")
+	if len(vals) > 0 {
+		topic = vals[0]
+	}
+
 	subs := regFullMethod.FindStringSubmatch(info.FullMethod)
 	if len(subs) != 3 {
 		return handler(ctx, req)
 	}
 
-	ctx = NewCtxWithValue(ctx, reqId, caller, subs[1], subs[2], clientIp, userId)
+	ctx = NewCtxWithValue(ctx, subs[1], subs[2], caller, reqId, clientIp, userId, topic)
 	return handler(ctx, req)
 }
 
-func NewCtxWithValue(ctx context.Context, requestId string, caller string, service string, method string, clientIp string, userId string) context.Context {
+func NewCtxWithValue(ctx context.Context, service string, method string, caller string,
+	requestId string, clientIp string, userId string, topic string) context.Context {
 	fields := map[string]interface{}{
 		"request_id": requestId,
 		"service":    service,
 		"method":     method,
-		"client_ip":  clientIp,
 	}
 	if caller != "" {
 		fields["caller"] = caller
 	}
+	if clientIp != "" {
+		fields["client_ip"] = clientIp
+	}
 	if userId != "" {
 		fields["user_id"] = userId
+	}
+	if topic != "" {
+		fields["topic"] = topic
 	}
 
 	entry := logger.NewEntry(ctx, fields)
@@ -137,14 +154,19 @@ func NewCtxWithValue(ctx context.Context, requestId string, caller string, servi
 		"request_id": requestId,
 		"service":    service,
 		"method":     method,
-		"client_ip":  clientIp,
 		"logger":     entry,
 	}
 	if caller != "" {
 		ctxValue["caller"] = caller
 	}
+	if clientIp != "" {
+		ctxValue["client_ip"] = clientIp
+	}
 	if userId != "" {
 		ctxValue["user_id"] = userId
+	}
+	if topic != "" {
+		ctxValue["topic"] = topic
 	}
 
 	return context.WithValue(ctx, rpcCtxKey, ctxValue)
