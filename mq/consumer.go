@@ -56,7 +56,7 @@ func (c *Consumer) OnWithTimeout(topic string, f func(ctx context.Context, m *ns
 				fields["err"] = err.Error()
 				grpcex.GetLogger(ctx).WithFields(fields).Error("Consume failed")
 			} else {
-				grpcex.GetLogger(ctx).WithFields(fields).Error("Consume success")
+				grpcex.GetLogger(ctx).WithFields(fields).Info("Consume success")
 			}
 		}()
 
